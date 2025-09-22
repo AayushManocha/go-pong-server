@@ -21,19 +21,19 @@ func (r Rectangle) String() string {
 }
 
 type NewObject struct {
-Id string
-number int
+	Id     string
+	number int
 }
 
 type Player struct {
-	Id    string    `json:"id"`
-	Shape Rectangle `json:"shape"`
+	Id    string     `json:"id"`
+	Shape *Rectangle `json:"shape"`
 }
 
 type Game struct {
-	PLAYERS       []Player `json:"players"`
-	CANVAS_HEIGHT int      `json:"canvasHeight"`
-	CANVAS_WIDTH  int      `json:"canvasWidth"`
+	PLAYERS       *[]*Player `json:"players"`
+	CANVAS_HEIGHT int        `json:"canvasHeight"`
+	CANVAS_WIDTH  int        `json:"canvasWidth"`
 	// BALL       Rectangle
 }
 
@@ -60,24 +60,32 @@ func (g Game) String() string {
 }
 
 func CreateNewGame() Game {
+	p1 := &Player{Id: "1", Shape: &Rectangle{X: 10, Y: 10}}
+	p2 := &Player{Id: "2", Shape: &Rectangle{X: 100, Y: 10}}
 	game := Game{
-		PLAYERS:       []Player{},
+		PLAYERS:       &[]*Player{p1, p2},
 		CANVAS_HEIGHT: 500,
 		CANVAS_WIDTH:  500,
 	}
-	game.PLAYERS = append(game.PLAYERS, Player{Id: "1", Shape: Rectangle{X: 10, Y: 10}})
-	game.PLAYERS = append(game.PLAYERS, Player{Id: "2", Shape: Rectangle{X: 100, Y: 10}})
 
 	return game
 }
 
-func (g *Game) MovePlayer(p *Player, direction string) {
+func (g *Game) MovePlayer(playerId string, direction string) {
 	fmt.Println("MovePlayer()")
-	if direction == "UP" && p.Shape.Y < g.CANVAS_HEIGHT {
-		fmt.Println("Move Player Up")
-		p.Shape.Y += 1
-	} else if p.Shape.Y > 0 {
-		fmt.Println("Move Player down")
-		p.Shape.Y -= 1
+
+	players := *game.PLAYERS
+
+	for _, player := range players {
+		if player.Id == playerId {
+			if direction == "DOWN" {
+				fmt.Println("Down")
+				player.Shape.Y += 1
+			} else {
+				fmt.Println("Up")
+				player.Shape.Y -= 1
+			}
+		}
 	}
+
 }

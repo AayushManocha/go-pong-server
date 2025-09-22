@@ -52,27 +52,17 @@ type HandlePlayerMoveDTO struct {
 }
 
 func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
-	resp, _ := http.Get("https://example.com")
-	var v struct{}
-	json.NewDecoder(resp.Body).Decode(&v)
+	var dto HandlePlayerMoveDTO
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	defer r.Body.Close()
 
-	if r.Method == "POST" {
-		var dto HandlePlayerMoveDTO
-		err := json.NewDecoder(r.Body).Decode(&dto)
-
-		fmt.Println(fmt.Sprintf(`dto: %+v`, dto))
-
-		if err != nil {
-			panic("Could not read request body")
-		}
-		defer r.Body.Close()
-
-		for _, player := range game.PLAYERS {
-			if player.Id == dto.PlayerId {
-				game.MovePlayer(&player, dto.Direction)
-			}
-		}
+	if err != nil {
+		panic("Could not read request body")
 	}
+
+	fmt.Println(fmt.Sprintf(`dto: %+v`, dto))
+
+	game.MovePlayer(dto.PlayerId, dto.Direction)
 }
 
 func main() {
@@ -85,6 +75,10 @@ func main() {
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello, world"))
+	})
+
+	r.Get("/reset-game", func(w http.ResponseWriter, r *http.Request) {
+		game = CreateNewGame()
 	})
 
 	r.Get("/echo", echo)
