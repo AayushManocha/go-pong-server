@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 )
 
@@ -45,23 +46,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Allow any domain (you might restrict this in production)
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		// Handle preflight request
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 type HandlePlayerMoveDTO struct {
 	PlayerId  string `json:"playerId"`
 	Direction string `json:"direction"`
@@ -94,18 +78,18 @@ func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	game = CreateNewGame()
-	fmt.Println("Game: ", game.toJSON())
 
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r.Use(CorsMiddleware)
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello, world"))
 	})
-	mux.HandleFunc("/echo", echo)
 
-	mux.HandleFunc("/move-player", HandlePlayerMove)
+	r.Get("/echo", echo)
+	r.Post("/move-player", HandlePlayerMove)
 
-	handler := corsMiddleware(mux)
+	http.ListenAndServe(":3000", r)
 
-	http.ListenAndServe(":3000", handler)
 }
