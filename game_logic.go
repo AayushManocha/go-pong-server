@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	"github.com/gorilla/websocket"
 )
 
 type Rectangle struct {
@@ -35,6 +36,7 @@ type Game struct {
 	CANVAS_HEIGHT int        `json:"canvasHeight"`
 	CANVAS_WIDTH  int        `json:"canvasWidth"`
 	// BALL       Rectangle
+	CONNECTIONS SocketConnections
 }
 
 func (p Player) toJSON() string {
@@ -69,6 +71,10 @@ func CreateNewGame() Game {
 	}
 
 	return game
+}
+
+func (g *Game) AddConnection(conn *websocket.Conn) {
+	g.CONNECTIONS = append(g.CONNECTIONS, conn)
 }
 
 func (g *Game) MovePlayer(playerId string, direction string) {

@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 )
 
-var game Game
+var LIVE_GAMES []*Game
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -19,6 +18,10 @@ var upgrader = websocket.Upgrader{
 		return true
 	},
 }
+
+type SocketConnections []*websocket.Conn
+
+var connections SocketConnections
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	origin := r.Header["Origin"]
@@ -32,16 +35,13 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	ticker := time.NewTicker(500 * time.Millisecond) // every 2 seconds$
-	defer ticker.Stop()
+	// Create a new game with this connection
+	newGame := CreateNewGame()
+	newGame.AddConnection(c)
+
+	LIVE_GAMES = append(LIVE_GAMES, &newGame)
 
 	for {
-
-		select {
-		case _ = <-ticker.C:
-			c.WriteMessage(1, []byte(game.toJSON()))
-		}
-
 	}
 
 }
@@ -67,7 +67,7 @@ func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	game = CreateNewGame()
+	LIVE_GAMES = make([]*Game, 0)
 
 	r := chi.NewRouter()
 
@@ -77,8 +77,12 @@ func main() {
 		w.Write([]byte("hello, world"))
 	})
 
+	r.Post("/create-game", func(w http.ResponseWriter, r *http.Request) {
+		newGame := CreateNewGame()
+		LIVE_GAMES = append(LIVE_GAMES, &newGame)
+	})
+
 	r.Get("/reset-game", func(w http.ResponseWriter, r *http.Request) {
-		game = CreateNewGame()
 	})
 
 	r.Get("/echo", echo)
