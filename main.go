@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -26,7 +25,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print("upgrade:", err)
 		return
 	}
 
@@ -36,8 +34,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 	LIVE_GAMES = append(LIVE_GAMES, &newGame)
 
-	//Broadcast new game to client
-	// c.WriteMessage(1, []byte(newGame.toJSON()))
 	c.WriteJSON(newGame)
 
 }

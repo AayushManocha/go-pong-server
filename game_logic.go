@@ -73,7 +73,6 @@ func CreateNewGame() Game {
 }
 
 func (g *Game) AddConnection(conn *websocket.Conn) {
-	// old_connections := g.CONNECTIONS
 	if g.CONNECTIONS != nil {
 		new_connections := append(*g.CONNECTIONS, conn)
 		g.CONNECTIONS = &new_connections
