@@ -19,10 +19,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type SocketConnections []*websocket.Conn
-
-var connections SocketConnections
-
 func echo(w http.ResponseWriter, r *http.Request) {
 	origin := r.Header["Origin"]
 	fmt.Println("Origin header: ", origin)
@@ -33,7 +29,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
-	defer c.Close()
 
 	// Create a new game with this connection
 	newGame := CreateNewGame()
@@ -41,12 +36,14 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 	LIVE_GAMES = append(LIVE_GAMES, &newGame)
 
-	for {
-	}
+	//Broadcast new game to client
+	// c.WriteMessage(1, []byte(newGame.toJSON()))
+	c.WriteJSON(newGame)
 
 }
 
 type HandlePlayerMoveDTO struct {
+	GameId    string `json:"gameId`
 	PlayerId  string `json:"playerId"`
 	Direction string `json:"direction"`
 }
@@ -62,7 +59,11 @@ func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(fmt.Sprintf(`dto: %+v`, dto))
 
-	game.MovePlayer(dto.PlayerId, dto.Direction)
+	for _, game := range LIVE_GAMES {
+		if game.id == dto.GameId {
+			game.MovePlayer(dto.PlayerId, dto.Direction)
+		}
+	}
 }
 
 func main() {

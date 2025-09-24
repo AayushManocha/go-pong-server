@@ -21,22 +21,18 @@ func (r Rectangle) String() string {
 	return fmt.Sprintf("Rectangle{X: %d, Y: %d}", r.X, r.Y)
 }
 
-type NewObject struct {
-	Id     string
-	number int
-}
-
 type Player struct {
 	Id    string     `json:"id"`
 	Shape *Rectangle `json:"shape"`
 }
 
 type Game struct {
+	id            string
 	PLAYERS       *[]*Player `json:"players"`
 	CANVAS_HEIGHT int        `json:"canvasHeight"`
 	CANVAS_WIDTH  int        `json:"canvasWidth"`
 	// BALL       Rectangle
-	CONNECTIONS SocketConnections
+	CONNECTIONS *[]*websocket.Conn
 }
 
 func (p Player) toJSON() string {
@@ -64,23 +60,32 @@ func (g Game) String() string {
 func CreateNewGame() Game {
 	p1 := &Player{Id: "1", Shape: &Rectangle{X: 10, Y: 10}}
 	p2 := &Player{Id: "2", Shape: &Rectangle{X: 100, Y: 10}}
+	connections := make([]*websocket.Conn, 0)
+
 	game := Game{
 		PLAYERS:       &[]*Player{p1, p2},
 		CANVAS_HEIGHT: 500,
 		CANVAS_WIDTH:  500,
+		CONNECTIONS:   &connections,
 	}
 
 	return game
 }
 
 func (g *Game) AddConnection(conn *websocket.Conn) {
-	g.CONNECTIONS = append(g.CONNECTIONS, conn)
+	// old_connections := g.CONNECTIONS
+	if g.CONNECTIONS != nil {
+		new_connections := append(*g.CONNECTIONS, conn)
+		g.CONNECTIONS = &new_connections
+		return
+	}
+
 }
 
 func (g *Game) MovePlayer(playerId string, direction string) {
 	fmt.Println("MovePlayer()")
 
-	players := *game.PLAYERS
+	players := *g.PLAYERS
 
 	for _, player := range players {
 		if player.Id == playerId {
@@ -94,4 +99,15 @@ func (g *Game) MovePlayer(playerId string, direction string) {
 		}
 	}
 
+	g.BroadcastUpdates()
+
+}
+
+func (g *Game) BroadcastUpdates() {
+	connections := *g.CONNECTIONS
+	// fmt.Println("# of connections: ", len(connections))
+	for _, conn := range connections {
+		fmt.Println("Remote Address: ", conn.NetConn().RemoteAddr().String())
+		conn.WriteJSON(g)
+	}
 }
