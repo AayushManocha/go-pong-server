@@ -19,6 +19,10 @@ func main() {
 	r.Post("/game-start", handlers.GameStart)
 	r.Post("/game-pause", handlers.GamePause)
 
+	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Pong"))
+	})
+
 	http.ListenAndServe(":3000", r)
 
 }
