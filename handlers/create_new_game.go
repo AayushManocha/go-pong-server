@@ -14,7 +14,6 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 
 	newGame := game.CreateNewGame()
 	app.LIVE_GAMES = append(app.LIVE_GAMES, newGame)
-	fmt.Println("Created game w/ id: ", newGame.Id)
 
 	p1 := game.NewPlayer(1, game.DEFAULT_GUTTER_WIDTH)
 	newGame.AddPlayer(p1)

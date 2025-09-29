@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -39,7 +38,6 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 		for {
 			select {
 			case <-game.Quit_ch:
-				fmt.Println("Quit on game w/ id: ", game.Id)
 				game.GameStatus = "PAUSED"
 				messaging.BroadcastUpdates(game)
 				break gameloop

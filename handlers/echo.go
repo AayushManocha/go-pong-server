@@ -39,8 +39,6 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 	playerIndex := origin.Query().Get("playerIndex")
 	parsedPlayerIndex, _ := strconv.Atoi(playerIndex)
 
-	fmt.Println("parsedPlayerIndex: ", parsedPlayerIndex)
-
 	var newPlayer *game.Player
 	existingPlayer := game.GetPlayerById(parsedPlayerIndex, current_game.Players)
 
@@ -64,8 +62,6 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 		c.WriteJSON(messaging.NewPlayerMessage(newPlayer))
 		messaging.BroadcastUpdates(current_game)
 	}
-
-	fmt.Printf("Writing game: %+v \n", messaging.NewGameMessage(current_game))
 
 	// Write initial game state to new client
 	err = c.WriteJSON(messaging.NewGameMessage(current_game))

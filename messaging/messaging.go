@@ -1,7 +1,11 @@
 package messaging
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/AayushManocha/go-game-server/game"
+	"github.com/gorilla/websocket"
 )
 
 type PlayerMessage struct {
@@ -47,7 +51,22 @@ func BroadcastUpdates(g *game.Game) {
 		conn := p.Connection
 
 		conn.Mu.Lock()
-		conn.Connection.WriteJSON(NewGameMessage(g))
+
+		err := conn.Connection.WriteJSON(NewGameMessage(g))
+		if err != nil {
+			if err == io.EOF {
+				fmt.Printf("EOF Error received \n")
+			} else if err == websocket.ErrCloseSent {
+				fmt.Printf("ErrClose Error received \n")
+			} else {
+				fmt.Printf("Received err: %s \n", err.Error())
+			}
+
+			// Stop game and remove player
+			g.Quit_ch <- true
+
+		}
+
 		conn.Mu.Unlock()
 	}
 }
