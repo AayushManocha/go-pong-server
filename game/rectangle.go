@@ -3,9 +3,10 @@ package game
 import "fmt"
 
 type Rectangle struct {
-	X     int `json:"x"`
-	Y     int `json:"y"`
-	Width int `json:"width"`
+	X      int `json:"x"`
+	Y      int `json:"y"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
 }
 
 func (r Rectangle) toJSON() string {

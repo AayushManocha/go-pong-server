@@ -26,9 +26,7 @@ func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
 
 	game := game.GetGameById(dto.GameId, bootstrap.GetApp().LIVE_GAMES)
 
-	if game.GameStatus == "PLAYED" {
-		game.MovePlayer(dto.PlayerId, dto.Direction)
-		messaging.BroadcastUpdates(game)
-	}
+	game.MovePlayer(dto.PlayerId, dto.Direction)
+	messaging.BroadcastUpdates(game)
 
 }

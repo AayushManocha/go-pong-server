@@ -64,7 +64,9 @@ func (g *Game) MovePlayer(playerId int, direction string) {
 	players := g.Players
 	player := GetPlayerById(playerId, players)
 
-	playerIsAtBottomOfCanvas := player.Shape.Y >= g.CanvasWidth
+	playerIsAtBottomOfCanvas := player.Shape.Y >= g.CanvasHeight-player.Shape.Height
+	// playerIsAtBottomOfCanvas := player.Shape.Y >= 200
+
 	playerIsAtTopOfCanvas := player.Shape.Y <= 0
 
 	if direction == "DOWN" && !playerIsAtBottomOfCanvas {
@@ -125,13 +127,13 @@ func detectWallCollision(g *Game) {
 	ball := g.Ball
 	if ball.Shape.X <= 0 {
 		g.SetWinner(2)
-	} else if ball.Shape.X >= g.CanvasWidth {
+	} else if ball.Shape.X >= g.CanvasWidth-ball.Shape.Width {
 		g.SetWinner(1)
 	}
 
 	if ball.Shape.Y <= 0 {
 		ball.SpeedY *= -1
-	} else if ball.Shape.Y >= g.CanvasHeight {
+	} else if ball.Shape.Y >= g.CanvasHeight-ball.Shape.Width {
 		ball.SpeedY *= -1
 	}
 }
