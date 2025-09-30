@@ -9,14 +9,9 @@ type Application struct {
 var app *Application
 
 func GetApp() *Application {
-	seedGame := game.CreateNewGame()
-	seedGame.Id = 123
-
 	if app == nil {
 		app = &Application{
-			LIVE_GAMES: []*game.Game{
-				seedGame,
-			},
+			LIVE_GAMES: []*game.Game{},
 		}
 	}
 
