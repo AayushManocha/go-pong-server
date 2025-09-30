@@ -37,7 +37,7 @@ type Game struct {
 
 func CreateNewGame() *Game {
 	ball := &Ball{
-		Shape:  &Rectangle{X: 250, Y: 250, Width: DEFAULT_BALL_DIAMETER},
+		Shape:  &Rectangle{X: 500, Y: 250, Width: DEFAULT_BALL_DIAMETER},
 		SpeedX: GenerateRandomSpeed(),
 		SpeedY: GenerateRandomSpeed(),
 	}
@@ -45,8 +45,8 @@ func CreateNewGame() *Game {
 	game := Game{
 		Id:           rand.Intn(100),
 		Players:      []*Player{},
-		CanvasHeight: 700,
-		CanvasWidth:  700,
+		CanvasHeight: 500,
+		CanvasWidth:  1000,
 		Ball:         ball,
 		GameStatus:   "PAUSED",
 		Quit_ch:      make(chan bool, 2),
