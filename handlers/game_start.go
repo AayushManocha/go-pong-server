@@ -11,7 +11,7 @@ import (
 )
 
 type GameStartDTO struct {
-	GameId int `json:"gameId`
+	GameId string `json:"gameId`
 }
 
 func GameStart(w http.ResponseWriter, r *http.Request) {

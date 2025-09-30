@@ -9,7 +9,7 @@ import (
 )
 
 type GamePauseDto struct {
-	GameId int
+	GameId string
 }
 
 func GamePause(w http.ResponseWriter, r *http.Request) {

@@ -1,6 +1,6 @@
 package game
 
-func GetGameById(gameId int, gameList []*Game) *Game {
+func GetGameById(gameId string, gameList []*Game) *Game {
 	var foundGame *Game
 	for _, g := range gameList {
 		if g.Id == gameId {

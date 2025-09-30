@@ -33,8 +33,7 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gameId := origin.Query().Get("gameId")
-	parsedGameId, _ := strconv.Atoi(gameId)
-	current_game := game.GetGameById(parsedGameId, bootstrap.GetApp().LIVE_GAMES)
+	current_game := game.GetGameById(gameId, bootstrap.GetApp().LIVE_GAMES)
 
 	playerIndex := origin.Query().Get("playerIndex")
 	parsedPlayerIndex, _ := strconv.Atoi(playerIndex)

@@ -10,7 +10,7 @@ import (
 )
 
 type HandlePlayerMoveDTO struct {
-	GameId    int    `json:"gameId`
+	GameId    string `json:"gameId`
 	PlayerId  int    `json:"playerId"`
 	Direction string `json:"direction"`
 }

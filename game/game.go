@@ -1,8 +1,6 @@
 package game
 
-import (
-	"math/rand"
-)
+import "github.com/AayushManocha/go-game-server/utils"
 
 type GameStatus int
 
@@ -25,7 +23,7 @@ const DEFAULT_BALL_DIAMETER = 25
 const DEFAULT_GUTTER_WIDTH = 50
 
 type Game struct {
-	Id           int
+	Id           string
 	Players      []*Player `json:"players"`
 	CanvasHeight int       `json:"canvasHeight"`
 	CanvasWidth  int       `json:"canvasWidth"`
@@ -44,7 +42,7 @@ func CreateNewGame() *Game {
 	}
 
 	game := Game{
-		Id:           rand.Intn(100),
+		Id:           utils.String(10),
 		Players:      []*Player{},
 		CanvasHeight: 500,
 		CanvasWidth:  1000,
