@@ -19,5 +19,5 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 	newGame.AddPlayer(p1)
 
 	w.Header().Add("Content-Type", "application/json")
-	w.Write([]byte(fmt.Sprintf(`{"gameId": %d, "playerIndex": %d}`, newGame.Id, p1.Index)))
+	w.Write([]byte(fmt.Sprintf(`{"gameId": "%s", "playerIndex": %d}`, newGame.Id, p1.Index)))
 }
