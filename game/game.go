@@ -31,6 +31,7 @@ type Game struct {
 	CanvasWidth  int       `json:"canvasWidth"`
 	Ball         *Ball     `json:"ball"`
 	GameStatus   string    `json:"gameStatus"`
+	Winner       int       `json:"winner"`
 
 	Quit_ch chan bool `json:"-"`
 }
@@ -50,6 +51,7 @@ func CreateNewGame() *Game {
 		Ball:         ball,
 		GameStatus:   "PAUSED",
 		Quit_ch:      make(chan bool, 2),
+		Winner:       0,
 	}
 
 	return &game
@@ -116,17 +118,17 @@ func detectPaddleCollision(g *Game) {
 
 }
 
-func (g *Game) SetWinner() {
-	g.GameStatus = "FINISHED"
+func (g *Game) SetWinner(playerIndex int) {
+	g.Winner = playerIndex
 	g.Quit_ch <- true
 }
 
 func detectWallCollision(g *Game) {
 	ball := g.Ball
 	if ball.Shape.X <= 0 {
-		g.SetWinner()
+		g.SetWinner(2)
 	} else if ball.Shape.X >= g.CanvasWidth {
-		g.SetWinner()
+		g.SetWinner(1)
 	}
 
 	if ball.Shape.Y <= 0 {
