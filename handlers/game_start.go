@@ -25,12 +25,12 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 
 	game := game.GetGameById(dto.GameId, bootstrap.GetApp().LIVE_GAMES)
 
-	playerCount := len(game.Players)
+	// playerCount := len(game.Players)
 
-	if playerCount < 2 {
-		w.Write([]byte("Not enough players in game"))
-		return
-	}
+	// if playerCount < 2 {
+	// 	w.Write([]byte("Not enough players in game"))
+	// 	return
+	// }
 
 	go func() {
 		game.GameStatus = "PLAYED"
@@ -41,11 +41,13 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 				game.GameStatus = "PAUSED"
 				messaging.BroadcastUpdates(game)
 				break gameloop
+			case collision := <-game.CollisionMessage_ch:
+				messaging.BroadcastCollison(game, collision)
 			default:
 				time.Sleep(time.Millisecond * 50)
 				game.MoveBall()
-				messaging.BroadcastUpdates(game)
 			}
 		}
 	}()
+
 }
