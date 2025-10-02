@@ -40,14 +40,15 @@ type Game struct {
 }
 
 type Collision struct {
-	XSpeed int
-	YSpeed int
+	XSpeed float64
+	YSpeed float64
 }
 
 func CreateNewGame() *Game {
 	ball := &Ball{
-		Shape:  &Rectangle{X: 500, Y: 250, Width: DEFAULT_BALL_DIAMETER},
-		SpeedX: GenerateRandomSpeed(),
+		Shape: &Rectangle{X: 500, Y: 250, Width: DEFAULT_BALL_DIAMETER},
+		// SpeedX: GenerateRandomSpeed(),
+		SpeedX: 0,
 		SpeedY: GenerateRandomSpeed(),
 	}
 
@@ -75,10 +76,7 @@ func (g *Game) MovePlayer(playerId int, direction string) *Player {
 	players := g.Players
 	player := GetPlayerById(playerId, players)
 
-	fmt.Printf("MovePlayer() \n")
-	fmt.Printf("Original: [%d, %d]", player.Shape.X, player.Shape.Y)
-
-	playerIsAtBottomOfCanvas := player.Shape.Y >= g.CanvasHeight-player.Shape.Height
+	playerIsAtBottomOfCanvas := player.Shape.Y >= float64(g.CanvasHeight-player.Shape.Height)
 	playerIsAtTopOfCanvas := player.Shape.Y <= 0
 
 	if direction == "DOWN" && !playerIsAtBottomOfCanvas {
@@ -88,13 +86,14 @@ func (g *Game) MovePlayer(playerId int, direction string) *Player {
 		fmt.Println("Moved UP")
 		player.Shape.Y -= 10
 	}
-	fmt.Printf("New: [%d, %d]", player.Shape.X, player.Shape.Y)
 	return player
 }
 
-func (g *Game) MoveBall() {
-	g.Ball.Shape.X += g.Ball.SpeedX
-	g.Ball.Shape.Y += g.Ball.SpeedY
+func (g *Game) MoveBall(milliseconds int) {
+	g.Ball.Shape.X += float64(g.Ball.SpeedX) * float64(milliseconds)
+	g.Ball.Shape.Y += float64(g.Ball.SpeedY) * float64(milliseconds)
+
+	// fmt.Printf("New X: %.2f New Y: %.2f (changed x by %.2f) \n", g.Ball.Shape.X, g.Ball.Shape.Y, float64(g.Ball.SpeedX)/1000.0)
 
 	detectWallCollision(g)
 	// detectPaddleCollision(g)
@@ -154,7 +153,7 @@ func detectWallCollision(g *Game) {
 			YSpeed: 0,
 		}
 		g.SetWinner(2)
-	} else if ball.Shape.X >= g.CanvasWidth-ball.Shape.Width {
+	} else if ball.Shape.X >= float64(g.CanvasWidth-ball.Shape.Width) {
 		g.CollisionMessage_ch <- Collision{
 			XSpeed: 0,
 			YSpeed: 0,
@@ -168,7 +167,7 @@ func detectWallCollision(g *Game) {
 			YSpeed: ball.SpeedY * -1,
 		}
 		ball.SpeedY *= -1
-	} else if ball.Shape.Y >= g.CanvasHeight-ball.Shape.Width {
+	} else if ball.Shape.Y >= float64(g.CanvasHeight-ball.Shape.Width) {
 		g.CollisionMessage_ch <- Collision{
 			XSpeed: ball.SpeedX,
 			YSpeed: ball.SpeedY * -1,

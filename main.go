@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/AayushManocha/go-game-server/handlers"
@@ -23,6 +24,9 @@ func main() {
 		w.Write([]byte("Pong"))
 	})
 
-	http.ListenAndServe(":3000", r)
+	fmt.Println("Starting Router...")
+	if err := http.ListenAndServe(":3000", r); err != nil {
+		fmt.Println("Error starting router")
+	}
 
 }

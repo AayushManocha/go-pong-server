@@ -21,7 +21,7 @@ func NewPlayer(playerIndex int, xPos int) *Player {
 	return &Player{
 		Index: playerIndex,
 		Shape: &Rectangle{
-			X:      xPos,
+			X:      float64(xPos),
 			Y:      100,
 			Width:  20,
 			Height: 100,
