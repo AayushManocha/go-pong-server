@@ -84,14 +84,14 @@ func BroadcastUpdates(g *game.Game) {
 	}
 }
 
-func BroadcastPlayerMove(g *game.Game, p *game.Player) {
+func BroadcastPlayerMove(g *game.Game, movedPlayer *game.Player) {
 	players := g.Players
 
 	msg := PlayerMoveMessage{
 		Type:        "PLAYER_MOVE_MESSAGE",
-		PlayerIndex: p.Index,
-		X:           p.Shape.X,
-		Y:           p.Shape.Y,
+		PlayerIndex: movedPlayer.Index,
+		X:           movedPlayer.Shape.X,
+		Y:           movedPlayer.Shape.Y,
 	}
 
 	fmt.Printf("Broadcast message: %+v \n", msg)
@@ -99,6 +99,7 @@ func BroadcastPlayerMove(g *game.Game, p *game.Player) {
 	for _, p := range players {
 		conn := p.Connection
 
+		// if p.Index != movedPlayer.Index {
 		conn.Mu.Lock()
 		err := conn.Connection.WriteJSON(msg)
 		if err != nil {
@@ -109,6 +110,8 @@ func BroadcastPlayerMove(g *game.Game, p *game.Player) {
 
 		conn.Mu.Unlock()
 	}
+
+	// }
 }
 
 func BroadcastCollison(g *game.Game, collision game.Collision) {

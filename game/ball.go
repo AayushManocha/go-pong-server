@@ -9,7 +9,7 @@ type Ball struct {
 }
 
 func GenerateRandomSpeed() int {
-	baseSpeed := 5
+	baseSpeed := 50
 
 	directionBase := rand.Intn(100)
 	if directionBase > 50 {
