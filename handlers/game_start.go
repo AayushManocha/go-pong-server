@@ -57,7 +57,7 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 				g.MoveBall(50)
 				ticksSinceCorrection += 1
 				if ticksSinceCorrection >= 20 {
-					messaging.BroadcastBallCorrection(g)
+					// messaging.BroadcastBallCorrection(g)
 					ticksSinceCorrection = 0
 				}
 			}
