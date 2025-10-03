@@ -35,7 +35,7 @@ type GameStartMessage struct {
 }
 
 type BallCorrectionMessage struct {
-	Type   string
+	Type   string `json:"type"`
 	SpeedX float64
 	SpeedY float64
 	X      float64
@@ -148,8 +148,9 @@ func BroadcastBallCorrection(g *game.Game) {
 			Type:   "BALL_CORRECTION_MESSAGE",
 			SpeedX: g.Ball.SpeedX,
 			SpeedY: g.Ball.SpeedY,
-			X:      g.Ball.Shape.X,
-			Y:      g.Ball.Shape.Y,
+
+			X: g.Ball.Shape.X,
+			Y: g.Ball.Shape.Y,
 		})
 
 		if err != nil {
