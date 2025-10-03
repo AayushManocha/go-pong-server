@@ -34,9 +34,11 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 	// 	w.Write([]byte("Not enough players in game"))
 	// 	return
 	// }
+	//
 
 	go func() {
 		game.GameStatus = "PLAYED"
+		ticksSinceCorrection := 0
 	gameloop:
 		for {
 			select {
@@ -46,9 +48,13 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 				messaging.BroadcastGameStop(game)
 				break gameloop
 			default:
-				time.Sleep(time.Millisecond * 1000)
-				game.MoveBall(1000)
-				// messaging.BroadcastBallCorrection(game)
+				time.Sleep(time.Millisecond * 50)
+				game.MoveBall(50)
+				ticksSinceCorrection += 1
+				if ticksSinceCorrection >= 20 {
+					messaging.BroadcastBallCorrection(game)
+					ticksSinceCorrection = 0
+				}
 			}
 		}
 	}()
