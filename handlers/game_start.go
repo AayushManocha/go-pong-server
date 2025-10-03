@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -36,25 +37,18 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		game.GameStatus = "PLAYED"
-		// remainingMilliseconds := 5000
 	gameloop:
 		for {
 			select {
 			case <-game.Quit_ch:
+				fmt.Println("Quit CH received")
 				game.GameStatus = "PAUSED"
-				messaging.BroadcastUpdates(game)
+				messaging.BroadcastGameStop(game)
 				break gameloop
-			// case collision := <-game.CollisionMessage_ch:
-			// 	messaging.BroadcastCollison(game, collision)
 			default:
-				time.Sleep(time.Millisecond * 50)
-				game.MoveBall(50)
-				messaging.BroadcastBallCorrection(game)
-				// remainingMilliseconds -= 50
-				// if remainingMilliseconds <= 0 {
-				// 	messaging.BroadcastGameStop(game)
-				// 	break gameloop
-				// }
+				time.Sleep(time.Millisecond * 1000)
+				game.MoveBall(1000)
+				// messaging.BroadcastBallCorrection(game)
 			}
 		}
 	}()

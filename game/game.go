@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-
 	"github.com/AayushManocha/go-game-server/utils"
 )
 
@@ -48,7 +46,7 @@ func CreateNewGame() *Game {
 	ball := &Ball{
 		Shape: &Rectangle{X: 500, Y: 250, Width: DEFAULT_BALL_DIAMETER},
 		// SpeedX: GenerateRandomSpeed(),
-		SpeedX: 0,
+		SpeedX: GenerateRandomSpeed(),
 		SpeedY: GenerateRandomSpeed(),
 	}
 
@@ -80,10 +78,8 @@ func (g *Game) MovePlayer(playerId int, direction string) *Player {
 	playerIsAtTopOfCanvas := player.Shape.Y <= 0
 
 	if direction == "DOWN" && !playerIsAtBottomOfCanvas {
-		fmt.Println("Moved Down")
 		player.Shape.Y += 10
 	} else if direction == "UP" && !playerIsAtTopOfCanvas {
-		fmt.Println("Moved UP")
 		player.Shape.Y -= 10
 	}
 	return player
@@ -93,10 +89,8 @@ func (g *Game) MoveBall(milliseconds int) {
 	g.Ball.Shape.X += float64(g.Ball.SpeedX) * float64(milliseconds)
 	g.Ball.Shape.Y += float64(g.Ball.SpeedY) * float64(milliseconds)
 
-	// fmt.Printf("New X: %.2f New Y: %.2f (changed x by %.2f) \n", g.Ball.Shape.X, g.Ball.Shape.Y, float64(g.Ball.SpeedX)/1000.0)
-
 	detectWallCollision(g)
-	// detectPaddleCollision(g)
+	detectPaddleCollision(g)
 }
 
 func detectPaddleCollision(g *Game) {

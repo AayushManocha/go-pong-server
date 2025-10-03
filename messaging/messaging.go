@@ -23,12 +23,6 @@ type GenericErrorMessage struct {
 	Message string
 }
 
-type CollisionMessage struct {
-	Type   string  `json:"type"`
-	XSpeed float64 `json:"xSpeed'`
-	YSpeed float64 `json:"ySpeed"`
-}
-
 type PlayerMoveMessage struct {
 	Type        string  `json:"type"`
 	PlayerIndex int     `json:"playerIndex"`
@@ -49,7 +43,7 @@ type BallCorrectionMessage struct {
 }
 
 type GameStopMessage struct {
-	Type string
+	Type string `json:"type"`
 }
 
 func NewPlayerMessage(p *game.Player) PlayerMessage {
@@ -73,7 +67,7 @@ func NewGenericErrorMessage(msg string) GenericErrorMessage {
 	}
 }
 
-func BroadcastUpdates(g *game.Game) {
+func BroadcastGame(g *game.Game) {
 	players := g.Players
 
 	for _, p := range players {
@@ -110,8 +104,6 @@ func BroadcastPlayerMove(g *game.Game, movedPlayer *game.Player) {
 		Y:           movedPlayer.Shape.Y,
 	}
 
-	fmt.Printf("Broadcast message: %+v \n", msg)
-
 	for _, p := range players {
 		conn := p.Connection
 
@@ -130,40 +122,6 @@ func BroadcastPlayerMove(g *game.Game, movedPlayer *game.Player) {
 	// }
 }
 
-func BroadcastCollison(g *game.Game, collision game.Collision) {
-	players := g.Players
-
-	for _, p := range players {
-		conn := p.Connection
-
-		conn.Mu.Lock()
-
-		fmt.Printf("Collision on game %s, writing message: %+v \n", g.Id, collision)
-
-		err := conn.Connection.WriteJSON(CollisionMessage{
-			Type:   "COLLISION_MESSAGE",
-			XSpeed: collision.XSpeed,
-			YSpeed: collision.YSpeed,
-		})
-
-		if err != nil {
-			if err == io.EOF {
-				fmt.Printf("EOF Error received \n")
-			} else if err == websocket.ErrCloseSent {
-				fmt.Printf("ErrClose Error received \n")
-			} else {
-				fmt.Printf("Received err: %s \n", err.Error())
-			}
-
-			// Stop game and remove player
-			g.Quit_ch <- true
-
-		}
-
-		conn.Mu.Unlock()
-	}
-}
-
 func BroadcastGameStart(g *game.Game) {
 	players := g.Players
 	for _, p := range players {
@@ -172,7 +130,6 @@ func BroadcastGameStart(g *game.Game) {
 		err := conn.Connection.WriteJSON(GameStartMessage{
 			Type: "GAME_START_MESSAGE",
 		})
-		fmt.Printf("GameStart Game: %d \n", g.Id)
 		if err != nil {
 			fmt.Printf("Received err: %s \n", err.Error())
 			// Stop game and remove player
@@ -194,8 +151,6 @@ func BroadcastBallCorrection(g *game.Game) {
 			X:      g.Ball.Shape.X,
 			Y:      g.Ball.Shape.Y,
 		})
-
-		fmt.Printf("BallCorrectionMessage to player: %d \n", p.Index)
 
 		if err != nil {
 			fmt.Printf("Received err: %s \n", err.Error())

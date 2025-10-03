@@ -59,7 +59,7 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 	//Optionally write playerMessage
 	if newPlayer != nil {
 		c.WriteJSON(messaging.NewPlayerMessage(newPlayer))
-		messaging.BroadcastUpdates(current_game)
+		messaging.BroadcastGame(current_game)
 	}
 
 	// Write initial game state to new client
