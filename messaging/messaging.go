@@ -46,6 +46,11 @@ type GameStopMessage struct {
 	Type string `json:"type"`
 }
 
+type GameWinMessage struct {
+	Type        string `json:"type"`
+	PlayerIndex int    `json:"playerIndex"`
+}
+
 func NewPlayerMessage(p *game.Player) PlayerMessage {
 	return PlayerMessage{
 		Type:   "PLAYER_MESSAGE",
@@ -171,6 +176,24 @@ func BroadcastGameStop(g *game.Game) {
 			Type: "GAME_STOP_MESSAGE",
 		})
 		fmt.Println("GAME_STOP_MESSAGE")
+		if err != nil {
+			fmt.Printf("Received err: %s \n", err.Error())
+			// Stop game and remove player
+			g.Quit_ch <- true
+		}
+		conn.Mu.Unlock()
+	}
+}
+
+func BroadcastGameWinMessage(g *game.Game) {
+	players := g.Players
+	for _, p := range players {
+		conn := p.Connection
+		conn.Mu.Lock()
+		err := conn.Connection.WriteJSON(GameWinMessage{
+			Type:        "GAME_WIN_MESSAGE",
+			PlayerIndex: g.Winner,
+		})
 		if err != nil {
 			fmt.Printf("Received err: %s \n", err.Error())
 			// Stop game and remove player

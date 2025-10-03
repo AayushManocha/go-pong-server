@@ -6,15 +6,6 @@ import (
 	"github.com/AayushManocha/go-game-server/utils"
 )
 
-type GameStatus int
-
-const (
-	PAUSED GameStatus = iota
-	PLAYED
-	CREATED
-	FINISHED
-)
-
 type Direction int
 
 const (
@@ -28,12 +19,12 @@ const DEFAULT_GUTTER_WIDTH = 50
 
 type Game struct {
 	Id           string
-	Players      []*Player `json:"players"`
-	CanvasHeight int       `json:"canvasHeight"`
-	CanvasWidth  int       `json:"canvasWidth"`
-	Ball         *Ball     `json:"ball"`
-	GameStatus   string    `json:"gameStatus"`
-	Winner       int       `json:"winner"`
+	Players      []*Player  `json:"players"`
+	CanvasHeight int        `json:"canvasHeight"`
+	CanvasWidth  int        `json:"canvasWidth"`
+	Ball         *Ball      `json:"ball"`
+	GameStatus   GameStatus `json:"gameStatus"`
+	Winner       int        `json:"winner"`
 
 	Quit_ch chan bool `json:"-"`
 }
@@ -51,7 +42,7 @@ func CreateNewGame() *Game {
 		CanvasHeight: 500,
 		CanvasWidth:  1000,
 		Ball:         ball,
-		GameStatus:   "PAUSED",
+		GameStatus:   ParseGameStatus("CREATED"),
 		Quit_ch:      make(chan bool, 2),
 		Winner:       0,
 	}
@@ -131,13 +122,13 @@ func (g *Game) SetWinner(playerIndex int) {
 func detectWallCollision(g *Game, paddleCollided bool) {
 	ball := g.Ball
 
-	if !paddleCollided {
-		if ball.Shape.X <= 0 {
-			g.SetWinner(2)
-		} else if ball.Shape.X >= float64(g.CanvasWidth-ball.Shape.Width) {
-			g.SetWinner(1)
-		}
+	// if !paddleCollided {
+	if ball.Shape.X <= 0 {
+		g.SetWinner(2)
+	} else if ball.Shape.X >= float64(g.CanvasWidth-ball.Shape.Width) {
+		g.SetWinner(1)
 	}
+	// }
 
 	if ball.Shape.Y <= 0 {
 		ball.SpeedY *= -1

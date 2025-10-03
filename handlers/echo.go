@@ -56,6 +56,10 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 		existingPlayer.SetConnection(c)
 	}
 
+	if len(current_game.Players) == 2 {
+		current_game.GameStatus = game.ParseGameStatus("READY")
+	}
+
 	//Optionally write playerMessage
 	if newPlayer != nil {
 		c.WriteJSON(messaging.NewPlayerMessage(newPlayer))

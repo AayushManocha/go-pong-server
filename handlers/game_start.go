@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -24,9 +23,9 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 		panic("Could not read request body")
 	}
 
-	game := game.GetGameById(dto.GameId, bootstrap.GetApp().LIVE_GAMES)
+	g := game.GetGameById(dto.GameId, bootstrap.GetApp().LIVE_GAMES)
 
-	messaging.BroadcastGameStart(game)
+	messaging.BroadcastGameStart(g)
 
 	// playerCount := len(game.Players)
 
@@ -37,22 +36,28 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 	//
 
 	go func() {
-		game.GameStatus = "PLAYED"
+		g.GameStatus = game.ParseGameStatus("IN_PLAY")
 		ticksSinceCorrection := 0
 	gameloop:
 		for {
 			select {
-			case <-game.Quit_ch:
-				fmt.Println("Quit CH received")
-				game.GameStatus = "PAUSED"
-				messaging.BroadcastGameStop(game)
-				break gameloop
+			case <-g.Quit_ch:
+				if g.Winner != 0 {
+					g.GameStatus = game.ParseGameStatus("FINISHED")
+					messaging.BroadcastGameWinMessage(g)
+					break gameloop
+				} else {
+					g.GameStatus = game.ParseGameStatus("PAUSED")
+					messaging.BroadcastGameStop(g)
+					break gameloop
+				}
+
 			default:
 				time.Sleep(time.Millisecond * 50)
-				game.MoveBall(50)
+				g.MoveBall(50)
 				ticksSinceCorrection += 1
 				if ticksSinceCorrection >= 20 {
-					messaging.BroadcastBallCorrection(game)
+					messaging.BroadcastBallCorrection(g)
 					ticksSinceCorrection = 0
 				}
 			}
