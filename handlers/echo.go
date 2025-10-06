@@ -45,7 +45,7 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 		newPlayerIdx := len(current_game.Players) + 1
 
 		if newPlayerIdx > 2 {
-			c.WriteJSON(messaging.NewGenericErrorMessage("This game is already full"))
+			// c.WriteJSON(messaging.NewGenericErrorMessage("This game is already full"))
 			return
 		}
 
@@ -62,7 +62,7 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 
 	//Optionally write playerMessage
 	if newPlayer != nil {
-		c.WriteJSON(messaging.NewPlayerMessage(newPlayer))
+		c.WriteJSON(messaging.NewPlayerJoinedMessage(newPlayer))
 		messaging.BroadcastGame(current_game)
 	}
 

@@ -8,7 +8,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type PlayerMessage struct {
+type Message interface{}
+
+type PlayerJoinedMessage struct {
 	Type   string `json:"type"`
 	Player *game.Player
 }
@@ -18,57 +20,10 @@ type GameMessage struct {
 	Game *game.Game
 }
 
-type GenericErrorMessage struct {
-	Type    string `json:"type"`
-	Message string
-}
-
-type PlayerMoveMessage struct {
-	Type        string  `json:"type"`
-	PlayerIndex int     `json:"playerIndex"`
-	X           float64 `json:"x"`
-	Y           float64 `json:"y"`
-}
-
-type GameStartMessage struct {
-	Type string `json:"type"`
-}
-
-type BallCorrectionMessage struct {
-	Type   string `json:"type"`
-	SpeedX float64
-	SpeedY float64
-	X      float64
-	Y      float64
-}
-
-type GameStopMessage struct {
-	Type string `json:"type"`
-}
-
-type GameWinMessage struct {
-	Type        string `json:"type"`
-	PlayerIndex int    `json:"playerIndex"`
-}
-
-func NewPlayerMessage(p *game.Player) PlayerMessage {
-	return PlayerMessage{
-		Type:   "PLAYER_MESSAGE",
-		Player: p,
-	}
-}
-
 func NewGameMessage(g *game.Game) GameMessage {
 	return GameMessage{
 		Type: "GAME_MESSAGE",
 		Game: g,
-	}
-}
-
-func NewGenericErrorMessage(msg string) GenericErrorMessage {
-	return GenericErrorMessage{
-		Type:    "ERROR_MESSAGE",
-		Message: msg,
 	}
 }
 
@@ -127,78 +82,30 @@ func BroadcastPlayerMove(g *game.Game, movedPlayer *game.Player) {
 	// }
 }
 
-func BroadcastGameStart(g *game.Game) {
+func BroadcastToAllPlayers(g *game.Game, msg Message) {
 	players := g.Players
 	for _, p := range players {
 		conn := p.Connection
 		conn.Mu.Lock()
-		err := conn.Connection.WriteJSON(GameStartMessage{
-			Type: "GAME_START_MESSAGE",
-		})
-		if err != nil {
-			fmt.Printf("Received err: %s \n", err.Error())
-			// Stop game and remove player
-			g.Quit_ch <- true
+		if err := conn.Connection.WriteJSON(msg); err != nil {
+			HandleMessageError()
 		}
 		conn.Mu.Unlock()
 	}
 }
 
-func BroadcastBallCorrection(g *game.Game) {
+func BroadcastToOtherPlayers(from *game.Player, g *game.Game, msg Message) {
 	players := g.Players
 	for _, p := range players {
 		conn := p.Connection
-		conn.Mu.Lock()
-		err := conn.Connection.WriteJSON(BallCorrectionMessage{
-			Type:   "BALL_CORRECTION_MESSAGE",
-			SpeedX: g.Ball.SpeedX,
-			SpeedY: g.Ball.SpeedY,
-
-			X: g.Ball.Shape.X,
-			Y: g.Ball.Shape.Y,
-		})
-
-		if err != nil {
-			fmt.Printf("Received err: %s \n", err.Error())
-			// Stop game and remove player
-			g.Quit_ch <- true
+		if p.Index != from.Index {
+			conn.Mu.Lock()
+			if err := conn.Connection.WriteJSON(msg); err != nil {
+				HandleMessageError()
+			}
+			conn.Mu.Unlock()
 		}
-		conn.Mu.Unlock()
 	}
 }
 
-func BroadcastGameStop(g *game.Game) {
-	players := g.Players
-	for _, p := range players {
-		conn := p.Connection
-		conn.Mu.Lock()
-		err := conn.Connection.WriteJSON(GameStopMessage{
-			Type: "GAME_STOP_MESSAGE",
-		})
-		fmt.Println("GAME_STOP_MESSAGE")
-		if err != nil {
-			fmt.Printf("Received err: %s \n", err.Error())
-			// Stop game and remove player
-			g.Quit_ch <- true
-		}
-		conn.Mu.Unlock()
-	}
-}
-
-func BroadcastGameWinMessage(g *game.Game) {
-	players := g.Players
-	for _, p := range players {
-		conn := p.Connection
-		conn.Mu.Lock()
-		err := conn.Connection.WriteJSON(GameWinMessage{
-			Type:        "GAME_WIN_MESSAGE",
-			PlayerIndex: g.Winner,
-		})
-		if err != nil {
-			fmt.Printf("Received err: %s \n", err.Error())
-			// Stop game and remove player
-			g.Quit_ch <- true
-		}
-		conn.Mu.Unlock()
-	}
-}
+func HandleMessageError() {}

@@ -25,7 +25,7 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 
 	g := game.GetGameById(dto.GameId, bootstrap.GetApp().LIVE_GAMES)
 
-	messaging.BroadcastGameStart(g)
+	messaging.BroadcastToAllPlayers(g, messaging.NewGameStartMessage())
 
 	// playerCount := len(game.Players)
 
@@ -44,11 +44,11 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 			case <-g.Quit_ch:
 				if g.Winner != 0 {
 					g.GameStatus = game.ParseGameStatus("FINISHED")
-					messaging.BroadcastGameWinMessage(g)
+					messaging.BroadcastToAllPlayers(g, messaging.NewGameWinMessage(g))
 					break gameloop
 				} else {
 					g.GameStatus = game.ParseGameStatus("PAUSED")
-					messaging.BroadcastGameStop(g)
+					messaging.BroadcastToAllPlayers(g, messaging.NewGameStopMessage(g))
 					break gameloop
 				}
 
@@ -57,7 +57,7 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 				g.MoveBall(50)
 				ticksSinceCorrection += 1
 				if ticksSinceCorrection >= 20 {
-					messaging.BroadcastBallCorrection(g)
+					messaging.BroadcastToAllPlayers(g, messaging.NewBallCorectionMessage(g))
 					ticksSinceCorrection = 0
 				}
 			}
