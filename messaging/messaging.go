@@ -10,11 +10,6 @@ import (
 
 type Message interface{}
 
-type PlayerJoinedMessage struct {
-	Type   string `json:"type"`
-	Player *game.Player
-}
-
 type GameMessage struct {
 	Type string `json:"type"`
 	Game *game.Game
@@ -52,34 +47,6 @@ func BroadcastGame(g *game.Game) {
 
 		conn.Mu.Unlock()
 	}
-}
-
-func BroadcastPlayerMove(g *game.Game, movedPlayer *game.Player) {
-	players := g.Players
-
-	msg := PlayerMoveMessage{
-		Type:        "PLAYER_MOVE_MESSAGE",
-		PlayerIndex: movedPlayer.Index,
-		X:           movedPlayer.Shape.X,
-		Y:           movedPlayer.Shape.Y,
-	}
-
-	for _, p := range players {
-		conn := p.Connection
-
-		// if p.Index != movedPlayer.Index {
-		conn.Mu.Lock()
-		err := conn.Connection.WriteJSON(msg)
-		if err != nil {
-			fmt.Printf("Received err: %s \n", err.Error())
-			// Stop game and remove player
-			// g.Quit_ch <- true
-		}
-
-		conn.Mu.Unlock()
-	}
-
-	// }
 }
 
 func BroadcastToAllPlayers(g *game.Game, msg Message) {
