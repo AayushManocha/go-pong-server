@@ -55,18 +55,10 @@ func (g *Game) AddPlayer(p *Player) {
 	g.Players = newPlayerList
 }
 
-func (g *Game) MovePlayer(playerId int, direction string) *Player {
+func (g *Game) MovePlayer(playerId int, newY float64) *Player {
 	players := g.Players
 	player := GetPlayerById(playerId, players)
-
-	playerIsAtBottomOfCanvas := player.Shape.Y >= float64(g.CanvasHeight-player.Shape.Height)
-	playerIsAtTopOfCanvas := player.Shape.Y <= 0
-
-	if direction == "DOWN" && !playerIsAtBottomOfCanvas {
-		player.Shape.Y += 2
-	} else if direction == "UP" && !playerIsAtTopOfCanvas {
-		player.Shape.Y -= 2
-	}
+	player.Shape.Y = newY
 	return player
 }
 

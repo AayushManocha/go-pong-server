@@ -32,11 +32,11 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gameId := origin.Query().Get("gameId")
-	current_game := game.GetGameById(gameId, bootstrap.GetApp().LIVE_GAMES)
+	gameIdQueryParam := origin.Query().Get("gameId")
+	current_game := game.GetGameById(gameIdQueryParam, bootstrap.GetApp().LIVE_GAMES)
 
-	playerIndex := origin.Query().Get("playerIndex")
-	parsedPlayerIndex, _ := strconv.Atoi(playerIndex)
+	playerIndexQueryParam := origin.Query().Get("playerIndex")
+	parsedPlayerIndex, _ := strconv.Atoi(playerIndexQueryParam)
 
 	var newPlayer *game.Player
 	existingPlayer := game.GetPlayerById(parsedPlayerIndex, current_game.Players)
@@ -52,6 +52,7 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 		newPlayer = game.NewPlayer(newPlayerIdx, current_game.CanvasWidth-(game.DEFAULT_GUTTER_WIDTH+game.DEFAULT_PADDLE_WIDTH))
 		newPlayer.SetConnection(c)
 		current_game.AddPlayer(newPlayer)
+		c.WriteJSON(messaging.NewPlayerJoinedMessage(newPlayer))
 	} else {
 		existingPlayer.SetConnection(c)
 	}
@@ -60,17 +61,21 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 		current_game.GameStatus = game.ParseGameStatus("READY")
 	}
 
-	//Optionally write playerMessage
-	if newPlayer != nil {
-		c.WriteJSON(messaging.NewPlayerJoinedMessage(newPlayer))
-		messaging.BroadcastGame(current_game)
-	}
+	// Update all clients with gameState
 
-	// Write initial game state to new client
-	err = c.WriteJSON(messaging.NewGameMessage(current_game))
+	messaging.BroadcastToAllPlayers(current_game, messaging.NewGameMessage(current_game))
 
-	if err != nil {
-		fmt.Printf("Error writing JSON: %s \n", err.Error())
-	}
+	// //Optionally write playerMessage
+	// if newPlayer != nil {
+	// 	c.WriteJSON(messaging.NewPlayerJoinedMessage(newPlayer))
+	// 	messaging.BroadcastGame(current_game)
+	// }
+
+	// // Write initial game state to new client
+	// err = c.WriteJSON(messaging.NewGameMessage(current_game))
+
+	// if err != nil {
+	// 	fmt.Printf("Error writing JSON: %s \n", err.Error())
+	// }
 
 }

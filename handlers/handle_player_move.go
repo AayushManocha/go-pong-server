@@ -10,9 +10,9 @@ import (
 )
 
 type HandlePlayerMoveDTO struct {
-	GameId    string `json:"gameId`
-	PlayerId  int    `json:"playerId"`
-	Direction string `json:"direction"`
+	GameId   string  `json:"gameId`
+	PlayerId int     `json:"playerId"`
+	NewY     float64 `json:"newY"`
 }
 
 func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
@@ -26,8 +26,8 @@ func HandlePlayerMove(w http.ResponseWriter, r *http.Request) {
 
 	game := game.GetGameById(dto.GameId, bootstrap.GetApp().LIVE_GAMES)
 
-	updatedPlayer := game.MovePlayer(dto.PlayerId, dto.Direction)
-	messaging.BroadcastPlayerMove(game, updatedPlayer)
+	updatedPlayer := game.MovePlayer(dto.PlayerId, dto.NewY)
+	messaging.BroadcastToOtherPlayers(updatedPlayer, game, messaging.NewPlayerMoveMessage(updatedPlayer))
 
 	w.Write([]byte("Moved player"))
 }
