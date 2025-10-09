@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-var ALLOWED_ORIGINS = []string{"http://localhost:5173", "https://go-pong-react-client-xsal4.ondigitalocean.app"}
+var ALLOWED_ORIGINS = []string{"http://localhost:5173", "https://go-pong-react-client-xsal4.ondigitalocean.app", "https://pong-i7urf.ondigitalocean.app"}
 
 func CorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
