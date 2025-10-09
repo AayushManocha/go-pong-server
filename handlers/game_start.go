@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -27,13 +28,11 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 
 	messaging.BroadcastToAllPlayers(g, messaging.NewGameStartMessage())
 
-	// playerCount := len(game.Players)
-
-	// if playerCount < 2 {
-	// 	w.Write([]byte("Not enough players in game"))
-	// 	return
-	// }
-	//
+	playerCount := len(g.Players)
+	if playerCount < 2 {
+		w.Write([]byte("Not enough players in game"))
+		return
+	}
 
 	go func() {
 		g.GameStatus = game.ParseGameStatus("IN_PLAY")
@@ -45,6 +44,8 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 				if g.Winner != 0 {
 					g.GameStatus = game.ParseGameStatus("FINISHED")
 					messaging.BroadcastToAllPlayers(g, messaging.NewGameWinMessage(g))
+					bootstrap.GetApp().RemoveGame(g.Id)
+					fmt.Printf("Games remaining: %+v", bootstrap.GetApp().LIVE_GAMES)
 					break gameloop
 				} else {
 					g.GameStatus = game.ParseGameStatus("PAUSED")

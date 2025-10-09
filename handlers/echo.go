@@ -62,20 +62,6 @@ func Echo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update all clients with gameState
-
 	messaging.BroadcastToAllPlayers(current_game, messaging.NewGameMessage(current_game))
-
-	// //Optionally write playerMessage
-	// if newPlayer != nil {
-	// 	c.WriteJSON(messaging.NewPlayerJoinedMessage(newPlayer))
-	// 	messaging.BroadcastGame(current_game)
-	// }
-
-	// // Write initial game state to new client
-	// err = c.WriteJSON(messaging.NewGameMessage(current_game))
-
-	// if err != nil {
-	// 	fmt.Printf("Error writing JSON: %s \n", err.Error())
-	// }
 
 }
