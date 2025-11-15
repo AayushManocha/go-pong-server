@@ -36,7 +36,7 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		g.GameStatus = game.ParseGameStatus("IN_PLAY")
-		ticksSinceCorrection := 0
+		// ticksSinceCorrection := 0
 	gameloop:
 		for {
 			select {
@@ -56,11 +56,11 @@ func GameStart(w http.ResponseWriter, r *http.Request) {
 			default:
 				time.Sleep(time.Millisecond * 50)
 				g.MoveBall(50)
-				ticksSinceCorrection += 1
-				if ticksSinceCorrection >= 20 {
-					messaging.BroadcastToAllPlayers(g, messaging.NewBallCorectionMessage(g))
-					ticksSinceCorrection = 0
-				}
+				// ticksSinceCorrection += 1
+				// if ticksSinceCorrection >= 20 {
+				// 	messaging.BroadcastToAllPlayers(g, messaging.NewBallCorectionMessage(g))
+				// 	ticksSinceCorrection = 0
+				// }
 			}
 		}
 	}()

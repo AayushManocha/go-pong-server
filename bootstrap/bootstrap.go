@@ -1,6 +1,8 @@
 package bootstrap
 
-import "github.com/AayushManocha/go-game-server/game"
+import (
+	"github.com/AayushManocha/go-game-server/game"
+)
 
 type Application struct {
 	LIVE_GAMES []*game.Game

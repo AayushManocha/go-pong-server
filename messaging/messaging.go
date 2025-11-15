@@ -42,7 +42,6 @@ func BroadcastGame(g *game.Game) {
 
 			// Stop game and remove player
 			g.Quit_ch <- true
-
 		}
 
 		conn.Mu.Unlock()
